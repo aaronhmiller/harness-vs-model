@@ -1,0 +1,51 @@
+{
+  "_comment": "Drives the local-coding-agent stack (rMLX by default, mlx-lm as fallback). Both serve the same OpenAI-compatible port, so nothing here changes when you run `agent-serve runtime mlx-lm`.",
+
+  "runtime": {
+    "base_url": "http://127.0.0.1:8080/v1",
+
+    "_switch": "The server holds ONE model resident (--max-loaded-models 1), so changing model is a restart, not a request field. The runner shells out to these between models. Set --no-switch to manage it yourself.",
+    "switch": {
+      "use": ["agent-model", "use", "{key}"],
+      "restart": ["agent-serve", "restart"],
+      "ready_timeout_s": 240
+    }
+  },
+
+  "_models": "Three sizes, ONE family, one quantisation -- isolates scale from post-training. `registry_key` is the name `agent-model use` expects; `model` is the HF repo. Register them first: agent-model add qwen2.5-3b --repo mlx-community/Qwen2.5-3B-Instruct-4bit --size 2 && agent-model pull qwen2.5-3b",
+
+  "models": {
+    "qwen2.5-0.5b": {
+      "provider": "mlx",
+      "registry_key": "qwen2.5-0.5b",
+      "model": "mlx-community/Qwen2.5-0.5B-Instruct-4bit"
+    },
+    "qwen2.5-1.5b": {
+      "provider": "mlx",
+      "registry_key": "qwen2.5-1.5b",
+      "model": "mlx-community/Qwen2.5-1.5B-Instruct-4bit"
+    },
+    "qwen2.5-3b": {
+      "provider": "mlx",
+      "registry_key": "qwen2.5-3b",
+      "model": "mlx-community/Qwen2.5-3B-Instruct-4bit"
+    }
+  },
+
+  "harnesses": ["h1_naive", "h2_loop", "bon_control"],
+  "evals": ["e1_code", "e2a_knowledge", "e2b_traps"],
+
+  "_e1_tiers": "core = the original 30 tasks; hard = 15 that a 3B does not saturate. Calibration measured the core set at 86.7% for 3B with 22/30 pinned at 100%, which leaves no headroom for a harness effect on the upper rungs. Drop to [\"core\"] only if your whole ladder sits below ~1.5B.",
+  "e1_tiers": ["core", "hard"],
+
+  "seeds": 5,
+  "calibration_seeds": 3,
+  "h2_rounds": 3,
+  "bon_n": 3,
+  "target_baseline": [0.30, 0.60],
+
+  "decode": {
+    "temperature": 0.6,
+    "max_tokens": 900
+  }
+}

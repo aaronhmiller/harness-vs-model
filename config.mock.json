@@ -1,0 +1,20 @@
+{
+  "_comment": "Pipeline smoke-test config. No GPU required. The mock has KNOWN planted effects, so the analysis must recover them -- if it cannot, the analysis is broken.",
+
+  "models": {
+    "mock-small":  {"provider": "mock", "model": "mock-small"},
+    "mock-medium": {"provider": "mock", "model": "mock-medium"},
+    "mock-large":  {"provider": "mock", "model": "mock-large"}
+  },
+
+  "harnesses": ["h1_naive", "h2_loop", "bon_control"],
+  "evals": ["e1_code", "e2a_knowledge", "e2b_traps"],
+
+  "seeds": 5,
+  "calibration_seeds": 3,
+  "h2_rounds": 3,
+  "bon_n": 3,
+  "target_baseline": [0.20, 0.60],
+
+  "decode": {"temperature": 0.6, "max_tokens": 900}
+}

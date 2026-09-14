@@ -1,0 +1,5 @@
+# Dependencies live in pyproject.toml -- this file is only a pip fallback.
+#   uv sync                      (preferred)
+#   pip install -e .             (equivalent, without uv)
+#   pip install -e ".[yaml]"     (only if you swap config.json for config.yaml)
+requests>=2.31
